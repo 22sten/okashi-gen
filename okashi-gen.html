@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>☁️ 雲のうえのおやつガチャ ☁️</title>
+  <style>
+    /* 全体背景：淡い空色のグラデーション */
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      font-family: 'Hiragino Maru Gothic ProN', 'M PLUS Rounded 1c', 'Yu Gothic', sans-serif;
+      background: linear-gradient(135deg, #f0f4ff 0%, #fdfbfb 50%, #f3e8ee 100%);
+      color: #6b6272;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 背景の雲のあしらい */
+    .cloud-bg {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50px;
+      filter: blur(8px);
+      z-index: 0;
+    }
+    .cloud-1 { width: 200px; height: 100px; top: 10%; left: -50px; }
+    .cloud-2 { width: 250px; height: 120px; bottom: 5%; right: -60px; }
+
+    /* メインコンテナ：ガラス風（グラスモフィズム）＋ふわふわ雲デザイン */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      padding: 35px 28px;
+      border-radius: 40px;
+      
+      /* ガラスの質感 */
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      
+      /* 厚みのある立体感とフチの光沢 */
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 
+        0 20px 40px rgba(180, 190, 210, 0.25),
+        inset 0 0 15px rgba(255, 255, 255, 0.8),
+        0 8px 16px rgba(255, 255, 255, 0.6);
+      
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #7b7189;
+      margin-top: 0;
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.8);
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: bold;
+      color: #837a91;
+      margin-bottom: 8px;
+      padding-left: 6px;
+    }
+
+    /* 入力フォーム＆セレクトボックス：ぷっくりガラス調 */
+    input[type="number"], select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: 1.5px solid rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03), 0 4px 10px rgba(0,0,0,0.02);
+      font-size: 0.95rem;
+      color: #5c5366;
+      outline: none;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    input[type="number"]:focus, select:focus {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #d1c4e9;
+      box-shadow: 0 0 12px rgba(209, 196, 233, 0.5);
+    }
+
+    /* ガチャボタン：ふんわりぷっくり浮き出るボタン */
+    .gacha-btn {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(135deg, #e1bee7 0%, #b39ddb 100%);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 
+        0 8px 20px rgba(179, 157, 219, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .gacha-btn:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 
+        0 12px 24px rgba(179, 157, 219, 0.5),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8);
+    }
+
+    .gacha-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* ガチャ結果カード */
+    .result-card {
+      display: none;
+      margin-top: 28px;
+      padding: 22px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #ffffff;
+      box-shadow: 0 10px 25px rgba(160, 175, 200, 0.15);
+      animation: popIn 0.4s ease-out forwards;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 12px;
+      background: #f3e5f5;
+      color: #8e24aa;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .result-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #4a4252;
+      margin: 6px 0 12px 0;
+    }
+
+    .result-info {
+      font-size: 0.88rem;
+      color: #786e82;
+      line-height: 1.6;
+    }
+
+    .no-match {
+      color: #ba68c8;
+      font-size: 0.9rem;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景のふわふわ雲 -->
+  <div class="cloud-bg cloud-1"></div>
+  <div class="cloud-bg cloud-2"></div>
+
+  <div class="container">
+    <h1>☁️ おやつガチャ ☁️</h1>
+
+    <!-- 予算入力 -->
+    <div class="form-group">
+      <label for="budget">上限予算（円）</label>
+      <input type="number" id="budget" value="200" min="10" placeholder="例: 150">
+    </div>
+
+    <!-- 気分選択 -->
+    <div class="form-group">
+      <label for="mood">今の気分</label>
+      <select id="mood">
+        <option value="4">✨ なんでもOK（おまかせ）</option>
+        <option value="1">🍫 甘いものが食べたい（チョコ・クッキー）</option>
+        <option value="2">🍿 しょっぱい・ガッツリ（ポテチ・スナック）</option>
+        <option value="3">🍇 歯ごたえ・フルーティー（グミ）</option>
+      </select>
+    </div>
+
+    <!-- ガチャ回すボタン -->
+    <button class="gacha-btn" onclick="drawGacha()">ガチャをまわす 🍬</button>
+
+    <!-- 結果表示エリア -->
+    <div id="resultCard" class="result-card"></div>
+  </div>
+
+  <script>
+    // 40種類のおやつデータベース
+    const SNACKS = [
+      // グミ
+      { name: "果汁グミ (明治)", genre: "グミ", price: 140, mood: "フルーティー" },
+      { name: "ピュレグミ (カンロ)", genre: "グミ", price: 150, mood: "甘酸っぱい" },
+      { name: "タフグミ (カバヤ)", genre: "グミ", price: 200, mood: "ガッツリ" },
+      { name: "ハリボー ゴールドベア", genre: "グミ", price: 230, mood: "噛みごたえ" },
+      { name: "忍者めし (UHA味覚糖)", genre: "グミ", price: 130, mood: "噛みごたえ" },
+
+      // ポテチ・スナック
+      { name: "カルビー ポテトチップス うすしお", genre: "ポテチ", price: 160, mood: "定番・しょっぱい" },
+      { name: "堅あげポテト (カルビー)", genre: "ポテチ", price: 180, mood: "ザクザク・しょっぱい" },
+      { name: "ピザポテト (カルビー)", genre: "ポテチ", price: 180, mood: "濃厚・ガッツリ" },
+      { name: "湖池屋 ストロング", genre: "ポテチ", price: 170, mood: "ガッツリ・濃厚" },
+      { name: "チップスター (ヤマザキ)", genre: "ポテチ", price: 140, mood: "サクサク" },
+      { name: "うまい棒 (1本)", genre: "スナック", price: 15, mood: "お手軽・しょっぱい" },
+      { name: "じゃがりこ サラダ (カルビー)", genre: "スナック", price: 170, mood: "ザクザク" },
+      { name: "キャベツ太郎 (菓道)", genre: "スナック", price: 40, mood: "お手軽・濃厚" },
+      { name: "かっぱえびせん (カルビー)", genre: "スナック", price: 150, mood: "定番・サクサク" },
+      { name: "エアリアル (ヤマザキ)", genre: "スナック", price: 150, mood: "サクサク・濃厚" },
+
+      // チョコ
+      { name: "ブラックサンダー (有楽製菓)", genre: "チョコ", price: 50, mood: "お手軽・ガッツリ" },
+      { name: "アルフォート (ブルボン)", genre: "チョコ", price: 130, mood: "サクサク・甘い" },
+      { name: "ポッキー (江崎グリコ)", genre: "チョコ", price: 180, mood: "定番・甘い" },
+      { name: "キットカット (ネスレ)", genre: "チョコ", price: 200, mood: "甘い・シェア" },
+      { name: "きのこの山 (明治)", genre: "チョコ", price: 230, mood: "甘い・サクサク" },
+      { name: "たけのこの里 (明治)", genre: "チョコ", price: 230, mood: "甘い・ザクザク" },
+      { name: "ガルボ (明治)", genre: "チョコ", price: 160, mood: "濃厚・しっとり" },
+      { name: "チロルチョコ (1個)", genre: "チョコ", price: 30, mood: "お手軽・甘い" },
+      { name: "アポロ (明治)", genre: "チョコ", price: 140, mood: "フルーティー・甘い" },
+      { name: "メルティーキッス (明治)", genre: "チョコ", price: 280, mood: "贅沢・濃厚" },
+
+      // クッキー・ビスケット
+      { name: "カントリーマアム (不二家)", genre: "クッキー", price: 250, mood: "しっとり・甘い" },
+      { name: "オレオ (ナビスコ)", genre: "クッキー", price: 220, mood: "ザクザク・甘い" },
+      { name: "マリー (森永)", genre: "ビスケット", price: 180, mood: "素朴・あっさり" },
+      { name: "ムーンライト (森永)", genre: "ビスケット", price: 180, mood: "サクサク・甘い" },
+      { name: "チョイス (森永)", genre: "ビスケット", price: 180, mood: "サクサク・素朴" },
+      { name: "たべっ子どうぶつ (ギンビス)", genre: "ビスケット", price: 140, mood: "素朴・サクサク" },
+      { name: "パイの実 (ロッテ)", genre: "ビスケット", price: 180, mood: "サクサク・甘い" },
+      { name: "源氏パイ (三立製菓)", genre: "パイ", price: 200, mood: "サクサク・甘い" },
+
+      // せんべい・和菓子・駄菓子
+      { name: "ハッピーターン (亀田製菓)", genre: "せんべい", price: 180, mood: "定番・甘じょっぱい" },
+      { name: "柿の種 (亀田製菓)", genre: "せんべい", price: 200, mood: "おつまみ・ピリ辛" },
+      { name: "ばかうけ (栗山米菓)", genre: "せんべい", price: 180, mood: "定番・しょっぱい" },
+      { name: "雪の宿 (三幸製菓)", genre: "せんべい", price: 180, mood: "甘じょっぱい・サクサク" },
+      { name: "チョコバット (三立製菓)", genre: "駄菓子", price: 40, mood: "お手軽・甘い" },
+      { name: "おやつカルパス (プリマハム)", genre: "珍味", price: 15, mood: "お手軽・おつまみ" },
+      { name: "ビッグカツ (菓道)", genre: "駄菓子", price: 40, mood: "お手軽・ガッツリ" }
+    ];
+
+    function drawGacha() {
+      const budgetInput = document.getElementById("budget").value;
+      const budget = parseInt(budgetInput) || 0;
+      const moodChoice = document.getElementById("mood").value;
+      const resultCard = document.getElementById("resultCard");
+
+      // 絞り込み条件
+      const filtered = SNACKS.filter(snack => {
+        if (snack.price > budget) return false;
+
+        if (moodChoice === "1") return ["チョコ", "クッキー", "ビスケット", "パイ"].includes(snack.genre);
+        if (moodChoice === "2") return ["ポテチ", "スナック", "せんべい", "駄菓子", "珍味"].includes(snack.genre);
+        if (moodChoice === "3") return snack.genre === "グミ";
+        return true; // 4: なんでもOK
+      });
+
+      resultCard.style.display = "block";
+
+      if (filtered.length === 0) {
+        resultCard.innerHTML = `<div class="no-match">☁️ 条件に合うおやつが見つかりませんでした…<br>予算を少し増やしてみてね！</div>`;
+      } else {
+        // ランダム抽出
+        const selected = filtered[Math.floor(Math.random() * filtered.length)];
+        
+        resultCard.innerHTML = `
+          <div class="result-badge">${selected.genre}</div>
+          <div class="result-title">${selected.name}</div>
+          <div class="result-info">
+            目安価格：<strong>約${selected.price}円</strong><br>
+            特徴：${selected.mood}
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
